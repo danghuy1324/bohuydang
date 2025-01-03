@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thi Trắc Nghiệm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #302727;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: red;
+            text-align: center;
+        }
+
+        .quiz-container {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: rgb(36, 36, 36);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 600px;
+        }
+
+
+        .answer {
+            display: block;
+            margin: 10px 0;
+            padding: 12px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+        }
+
+        .correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .incorrect {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .correct-answer {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        .navigation {
+            margin-top: 20px;
+        }
+
+        .nav-button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .nav-button:disabled {
+            background-color: #810451;
+        }
+
+        h2 {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Thi Trắc Nghiệm Môn Thực Tế Ảo</h1>
+
+    <div class="quiz-container">
+        <div class="anh"></div>
+        <div id="questionsContainer" style=" height: 300px;"></div>
+        <div class="navigation">
+            <button id="prevButton" class="nav-button" onclick="showPreviousQuestion()" disabled>Quay lại</button>
+            <button id="nextButton" class="nav-button" onclick="showNextQuestion()" disabled>Tiếp theo</button>
+            <button id="retryButton" class="nav-button" onclick="retryIncorrect()" disabled>Làm lại câu sai</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                questionText: "Câu 1: Trong giao diện của Unity, cửa sổ nào tạo và chỉnh sửa khung cảnh cũng như các đối tượng??",
+                answers: ["A. Game View", "B. Hierarchy", "C. Scene View", "D. Inspector"],
+                correctAnswerIndex: 2,
+                imageUrl: "/onthi/file_anh/Ảnh%20chụp%20màn%20hình%202023-11-17%20101102.jpg"
+            },
+            {
+                questionText: "Câu 2: Trong giao diện của Unity, cửa sổ nào chứa các giao diện để chỉnh sửa thuộc tính của đối tượng được chọn?",
+                answers: ["A. Hierarchy", "B. Scene View", "C. Inspector", "D. Project"],
+                correctAnswerIndex: 2,
+                imageUrl: "/onthi/file_anh/cau10-13title.png"
+            },
+            {
+                questionText: "Câu 3: Trong giao diện của Unity, cửa sổ nào chứa tất cả các tài nguyên có thể sử dụng trong dự án?",
+                answers: ["A. Hierarchy", "B. Project", "C. Scene View", "D. Inspector"],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 4: Trong giao diện của Unity, cửa sổ nào mô phỏng thông qua góc nhìn bằng Camera đã thiết lập trong cửa sổ thiết kế?",
+                answers: ["A. Scene View", "B. Inspector", "C. Game View", "D. Hierarchy"],
+                correctAnswerIndex: 2,
+            },
+            {
+                questionText: "Câu 5: Thanh Status Bar trong giao diện của Unity có chức năng gì?",
+                answers: ["A. Chứa tên của dự án", "B. Chứa các lỗi của chương trình", "C. Chứa các thông tin về các hoạt động cũng như các lỗi của chương trình", "D. Chứa các thuộc tính của đối tượng"],
+                correctAnswerIndex: 2,
+            },
+            {
+                questionText: "Câu 6: Trong hình 5 chức năng nào để quản lý tài khoản?",
+                answers: ["A. D", "B. C", "C. E", "D. A"],
+                correctAnswerIndex: 1,
+                imageUrl: "/onthi/file_anh/2.jpg"
+            },
+            {
+                questionText: "Câu 7: Trong hình 5 chức năng nào để lưu lại các tùy chỉnh về giao diện?",
+                answers: ["A. D", "B. A", "C. E", "D. C"],
+                correctAnswerIndex: 2, imageUrl: "/onthi/file_anh/2.jpg"
+            },
+            {
+                questionText: "Câu 8: Để nhân bản đối tượng trong cửa sổ Hierarchy ta thao tác:",
+                answers: ["A. Nhấp vào tên đối tượng trong cửa sổ Hierarchy ấn tổ hợp phím Ctrl+D", "B. Nhấp vào tên đối tượng trong cửa sổ Hierarchy ấn tổ hợp phím Ctrl+C rồi ấn Ctrl+V", "C. Nhấp chuột phải vào tên đối tượng trong cửa sổ Hierarchy/ Duplicate", "D. Tất cả các phương án"],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 9: Chức năng của công cụ ProBuilder là gì?",
+                answers: ["A. Công cụ đưa sản phẩm lên kính thực tế ảo.", "B. Tạo các thuộc tính màu sắc, âm thanh cho đối tượng.", "C. Công cụ tạo hiệu ứng cho đối tượng.", "D. Tạo cấu trúc, mô hình cho đối tượng."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 10: Quan sát hình ảnh cho biết nhóm công cụ nào dùng để thay đổi hình dạng đối tượng?",
+                answers: ["A. Object Tools.", "B. Selection Tools.", "C. Geometry tools.", "D. Tool Panels."],
+                correctAnswerIndex: 2,
+                imageUrl: "/onthi/file_anh/cau10-13title.png"
+
+            },
+            {
+                questionText: "Câu 11: Quan sát hình ảnh cho biết nhóm công cụ nào dùng để tác động tới toàn bộ đối tượng?",
+                answers: ["A. Tool Panels.", "B. Object Tools.", "C. Selection Tools.", "D. Geometry tools."],
+                correctAnswerIndex: 1,
+                imageUrl: "/onthi/file_anh/cau10-13title.png"
+            },
+            {
+                questionText: "Câu 12: Quan sát hình ảnh cho biết nhóm công cụ nào dùng để thiết lập và thay đổi khi chọn hoặc tương tác với các đối tượng?",
+                answers: ["A. Tool Panels.", "B. Geometry tools.", "C. Object Tools.", "D. Selection Tools."],
+                correctAnswerIndex: 3,
+                imageUrl: "/onthi/file_anh/cau14-15title.png"
+            },
+            {
+                questionText: "Câu 13: Quan sát hình ảnh cho biết để chọn điểm góc đối tượng ta chọn công cụ số mấy?",
+                answers: ["A. Chọn số 3.", "B. Chọn số 4.", "C. Chọn số 1.", "D. Chọn số 2."],
+                correctAnswerIndex: 3,
+                imageUrl: "/onthi/file_anh/cau10-13title.png"
+            },
+            {
+                questionText: "Câu 14: Quan sát hình ảnh cho biết để chọn cạnh đối tượng ta chọn công cụ số mấy?",
+                answers: ["A. Chọn số 1.", "B. Chọn số 2.", "C. Chọn số 4.", "D. Chọn số 3."],
+                correctAnswerIndex: 3, imageUrl: "/onthi/file_anh/cau14-15title.png"
+            },
+            {
+                questionText: "Câu 15: Quan sát hình ảnh cho biết để chọn mặt phẳng đối tượng ta chọn công cụ số mấy?",
+                answers: ["A. Chọn số 4.", "B. Chọn số 2.", "C. Chọn số 1.", "D. Chọn số 3."],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau14-15title.png"
+            },
+            {
+                questionText: "Câu 16: Thao tác để mở công cụ tạo mô hình cong?",
+                answers: ["A. Tools\\ProBuilder\\Editors\\New Brezier Shape.", "B. Tools\\ProBuilder\\Editors\\New Poly Shape.", "C. Window\\ProBuilder\\Editors\\New Brezier Shape.", "D. Window\\ProBuilder\\Editors\\New Poly Shape."],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau17-18.ppg"
+            },
+            {
+                questionText: "Câu 17: Quan sát hình ảnh cho biết để phun màu cho bề mặt đối tượng ta chọn công cụ số?",
+                answers: ["A. Chọn số 4.", "B. Chọn số 5.", "C. Chọn số 3.", "D. Chọn số 2."],
+                correctAnswerIndex: 2, imageUrl: "/onthi/file_anh/cau17-18.png"
+            },
+            {
+                questionText: "Câu 18: Quan sát hình ảnh cho biết để làm nhẵn bề mặt đối tượng ta chọn công cụ số?",
+                answers: ["A. Chọn số 4.", "B. Chọn số 2.", "C. Chọn số 1.", "D. Chọn số 3."],
+                correctAnswerIndex: 1, imageUrl: "/onthi/file_anh/cau17-18.png"
+            },
+            {
+                questionText: "Câu 19: Để giới hạn khoảng vùng phát ra âm thanh của đối tượng chúng ta chọn thuộc tính?",
+                answers: ["A. Spread", "B. Max Distance", "C. Pitch", "D. Reverb Zone Mix"],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau19-21title.ppg"
+            },
+            {
+                questionText: "Câu 20: Để bỏ qua hiệu ứng khi phát âm thanh từ đối tượng ta lựa chọn?",
+                answers: ["A. Spatial Blend", "B. Priority", "C. Bypass Effects", "D. Spread"],
+                correctAnswerIndex: 2, imageUrl: "/onthi/file_anh/cau19-21title.png"
+            },
+            {
+                questionText: "Câu 21: Để âm lượng của âm thanh phát tiếng to nhất có thể khi điều chỉnh volume sẽ có giá trị là bao nhiêu?",
+                answers: ["A. 1", "B. 0", "C. 0.5", "D. 2"],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau19-21title.png"
+            },
+            {
+                questionText: "Câu 22: Kiểu ánh sáng sử dụng trong hình là kiểu ánh sáng gì?",
+                answers: ["A. Kiểu Spot", "B. Kiểu Area", "C. Kiểu Directional", "D. Kiểu Point"],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau22title.png"
+            },
+            {
+                questionText: "Câu 23: Để thay đổi cường độ sáng của nguồn sáng ta thay đổi thông số?",
+                answers: ["A. Intensity", "B. Indirect Multiplier", "C. Spot Angle", "D. Mode"],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau23title.png"
+            },
+            {
+                questionText: "Câu 24: Trong các thuộc tính sau thuộc tính nào không phải của Animation?",
+                answers: ["A. Mesh", "B. Material", "C. Transform", "D. Collider"],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 25: Cho đối tượng Cube như hình vẽ đang ở tọa độ (0,0,0) để cho đối tượng di chuyển sang trái ta thay đổi giá trị nào trong bảng Property?",
+                answers: ["A. Postion.y", "B. Postion.z", "C. Position.x", "D. Cả 3 giá trị Position.x. Position.y, Position.z"],
+                correctAnswerIndex: 2, imageUrl: "/onthi/file_anh/cau25title.png"
+            },
+            {
+                questionText: "Câu 26: Để nguồn sáng không bị thay trong suốt quá trình chạy chương trình và không tác động đến các đối tượng động ta chọn thuộc tính của chế độ Mode là?",
+                answers: ["A. Baked", "B. Mixed", "C. Realtime", "D. Shadow"],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau26title.png"
+            },
+            {
+                questionText: "Câu 27: Trong Unity, công cụ nào có chức năng thiết kế mô hình 3D cũng như kết cấu, hoa văn của đối tượng?",
+                answers: ["A. ProBuilder.", "B. Polybrush.", "C. Shader Graph.", "D. Không có đáp án nào đúng."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 28: Trong Unity, công cụ nào có chức năng pha trộn màu sắc/vật liệu, tạo độ lồi/lõm trên các mô hình 3D và rải trực tiếp các đối tượng?",
+                answers: ["A. ProBuilder.", "B. Polybrush.", "C. Shader Graph.", "D. Không có đáp án nào đúng."],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 29: Trong Unity, công cụ nào có chức năng xây dựng hiệu ứng hình ảnh dựa trên các thuật toán và tính toán toán học để tính toán màu sắc mỗi điểm ảnh?",
+                answers: ["A. ProBuilder.", "B. Polybrush.", "C. Shader Graph.", "D. Không có đáp án nào đúng."],
+                correctAnswerIndex: 2,
+            },
+            {
+                questionText: "Câu 30: Trong Unity, công cụ nào có chức năng thiết kế hiệu ứng bầu trời?",
+                answers: ["A. ProBuilder.", "B. Polybrush.", "C. Shader Graph.", "D. Không có đáp án nào đúng."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 31: Phầm mềm Unity xây dựng ứng dụng cho các nền tảng nào sau đây?",
+                answers: ["A. Kính thực tế ảo Oculus.", "B. Điện thoại di động chạy hệ điều hành Android.", "C. Điện thoại di động chạy hệ điều hành IOS.", "D. Tất cả đáp án trên đều đúng."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 32: Shader trong Unity có chức năng gì?",
+                answers: ["A. Chức năng tạo chuyển động.", "B. Chứa các thuật toán để tính toán màu sắc cho mỗi điểm ảnh dựa trên ánh sáng và vật liệu.", "C. Chức năng tạo âm thanh.", "D. Cả 3 đáp án trên đều sai."],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 33: Để thay đổi giao diện của phần mềm Unity Editor thì vào mục nào?",
+                answers: ["A. Edit\\Preference\\General\\Editor Theme.", "B. Windows\\Preference\\General\\Editor Theme.", "C. Edit\\Package Manager.", "D. Windows\\Package Manager."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 34: Để cài đặt các công cụ, tệp tin và plug-in thì vào mục nào?",
+                answers: ["A. Edit\\Preference\\General\\Editor Theme.", "B. Windows\\Preference\\General\\Editor Theme.", "C. Edit\\Package Manager.", "D. Windows\\Package Manager."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 35: Khi thiết kế sản phẩm VR, ta thực hiện theo các bước nào sau đây?",
+                answers: ["A. 1-2-3-4-5-6.", "B. 4-3-1-5-6-2.", "C. 4-3-5-1-6-2.", "D. 1-2-3-6-5-4."],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 36: Quan sát hình ảnh hãy cho biết để tách một cạnh thành hai cạnh song song ta chọn số?",
+                answers: ["A. Chọn số 7.", "B. Chọn số 6.", "C. Chọn số 8.", "D. Chọn số 9."],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau36,38title.png"
+            },
+            {
+                questionText: "Câu 37: Hãy cho biết thao tác đúng khi tạo một Material cho đối tượng?",
+                answers: ["A. Project\\click dấu +\\Material, kéo thả Material vào đối tượng.", "B. File\\Material, kéo thả Material vào đối tượng.", "C. Hierarchy\\click dấu +\\Material, kéo thả Material vào đối tượng.", "D. Tools\\Material, kéo thả Material vào đối tượng."],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau36,38title.png"
+            },
+            {
+                questionText: "Câu 38: Quan sát hình ảnh hãy cho biết muốn lưu đối tượng thành Model 3D ta chọn số?",
+                answers: ["A. Chọn số 8.", "B. Chọn số 7.", "C. Chọn số 6.", "D. Chọn số 5."],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau36,38title.png"
+            },
+            {
+                questionText: "Câu 39: Khi sử dụng các công cụ trong chế độ Vertex, ta muốn nối tất cả các điểm về điểm chính giữa hoặc điểm đầu tiên thì ta chọn chức năng nào?",
+                answers: ["A. Collapse Vertices.", "B. Weld Vertices.", "C. Connect Vertices.", "D. Split Vertices."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 40: Khi sử dụng các công cụ trong chế độ Edge, ta muốn chia một cạnh thành nhiều cạnh thì ta chọn chức năng nào?",
+                answers: ["A. Subdivide Edge.", "B. Extrude Edge.", "C. Connect Edge.", "D. Insert Edge Loop."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 41: Khi sử dụng các công cụ trong chế độ Face, ta muốn chia các mặt phẳng được chọn thành các hình tam giác thì ta chọn chức năng nào?",
+                answers: ["A. Trianqulate Faces.", "B. Subdivide Faces.", "C. Merge Faces.", "D. Flip Face Edge."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 42: Muốn lưu đối tượng thành hình khối có sẵn của ProBuilder ta chọn chức năng nào?",
+                answers: ["A. ProBuilderize Object.", "B. Subdivide Object.", "C. Flip Object Normals.", "D. Move Pivot to Center of Object."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 43: Hãy cho biết đối tượng nào trong hình là Prefab?",
+                answers: ["A. Plane", "B. Cube", "C. Spot Light", "D. Quad"],
+                correctAnswerIndex: 3, imageUrl: "/onthi/file_anh/cau43,44title.png"
+            },
+            {
+                questionText: "Câu 44: Dựa vào hình hãy cho biết đối tượng nào được tạo từ nhóm 3D Object?",
+                answers: ["A. Plane, Camera, Cube", "B. Camera, Spot Light, Quad", "C. Plane, Cube, Quad", "D. Plane, Cube"],
+                correctAnswerIndex: 3, imageUrl: "/onthi/file_anh/cau43,44title.png"
+            },
+            {
+                questionText: "Câu 45: Để tạo hiệu ứng như trong hình ta có thể thêm thuộc tính trong các hiệu ứng Effects?",
+                answers: ["A. Halo", "B. Lens Flare", "C. Visual Effect", "D. Projector"],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau45title.png"
+            },
+            {
+                questionText: "Câu 46: Để thiết lập biến dạng cho đối tượng khi có va chạm xảy ra ta có thể thiết lập trong?",
+                answers: ["A. Transform", "B. Mesh Filter", "C. Mesh Renderer", "D. Collider"],
+                correctAnswerIndex: 3, imageUrl: "/onthi/file_anh/cau46title.png"
+            },
+            {
+                questionText: "Câu 47: Định dạng âm thanh nào không được Unity hỗ trợ?",
+                answers: ["A. MP3", "B. AIFF", "C. OGG", "D. MIDI"],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 48: Để có hiệu ứng âm thanh vọng lại ta có thể điều chỉnh ở thuộc tính nào?",
+                answers: ["A. Priority", "B. Pitch", "C. Spatial Blend", "D. Reverb Zone Mix"],
+                correctAnswerIndex: 3, imageUrl: "/onthi/file_anh/cau48title.png"
+            },
+            {
+                questionText: "Câu 49: Để có hiệu ứng ánh sáng như hình ta có thể chọn ánh sáng kiểu?",
+                answers: ["A. Spot", "B. Directional", "C. Point", "D. Area"],
+                correctAnswerIndex: 3, imageUrl: "/onthi/file_anh/cau49title.png"
+            },
+            {
+                questionText: "Câu 50: Để khung timeline của Animation hiển thị như hình ta chọn chế độ hiển thị nào?",
+                answers: ["A. Dopesheet", "B. Curves", "C. Point", "D. Area"],
+                correctAnswerIndex: 1, imageUrl: "/onthi/file_anh/cau50-52title.png"
+            },
+            {
+                questionText: "Câu 51: Để chuyển động của đối tượng mượt mà trong khung timeline tại các điểm ta có thể chọn thuộc tính nào?",
+                answers: ["A. Clamped Auto", "B. Free Smooth", "C. Flat", "D. Broken"],
+                correctAnswerIndex: 1, imageUrl: "/onthi/file_anh/cau50-52title.png"
+            },
+            {
+                questionText: "Câu 52: Để tạo chuyển động rơi của đối tượng theo chiều thẳng đứng và không bị tác động bên ngoài trong khung timeline tại các điểm ta có thể chọn thuộc tính nào?",
+                answers: ["A. Clamped Auto", "B. Free Smooth", "C. Flat", "D. Broken"],
+                correctAnswerIndex: 3, imageUrl: "/onthi/file_anh/cau50-52title.png"
+            },
+            {
+                questionText: "Câu 53: Để tạo chuyển động vật rơi sang phải ta cần thay đổi những thuộc tính nào?",
+                answers: ["A. Position.x; Position.y", "B. Position.x; Position.z", "C. Position.y; Position.z", "D. Position.z"],
+                correctAnswerIndex: 3, imageUrl: "/onthi/file_anh/cau53title.png"
+            },
+            {
+                questionText: "Câu 54: Để bỏ bóng đổ của xe trong khung hình ta lựa chọn thay đổi thuộc tính nào trong Mesh Renderer?",
+                answers: ["A. Cast Shadows", "B. Receive Shadows", "C. Light Probes", "D. Anchor Override"],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau54,55title.png"
+            },
+            {
+                questionText: "Câu 55: Khi xe di chuyển đến vị trí 1 muốn xe quay trái và di chuyển ta cần thay đổi những thuộc tính trong bảng?",
+                answers: ["A. Position.x; Rotation.z", "B. Position.z; Rotation.y", "C. Position.y; Rotation.x", "D. Position.z; Rotation.x"],
+                correctAnswerIndex: 1, imageUrl: "/onthi/file_anh/cau54,55title.png"
+            },
+            {
+                questionText: "Câu 56: Để chỉnh sửa đối tượng đang là Prefab muốn đối tượng trở lại thành đối tượng thông thường (Game Object) ta lựa chọn thuộc tính?",
+                answers: ["A. Open Asset in Context", "B. Open Asset in Isolation", "C. Unpack", "D. Unpack Completely"],
+                correctAnswerIndex: 2, imageUrl: "/onthi/file_anh/cau56title.png"
+            },
+            {
+                questionText: "Câu 57: Khi build 1 ứng dụng bằng Unity để chạy trên hệ điều hành Android ta được file có đuôi?",
+                answers: ["A. *.APK", "B. *.UNI", "C. *.ANDROID", "D. .*VR"],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 58: Để thiết lập chế độ nén các Texture hình ảnh phù hợp thiết bị Oculus, ta chọn?",
+                answers: ["A. ETC(Default).", "B. ETC2.", "C. ASTC.", "D. DXT."],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 59: Để quản lý các Plugin cho VR ta cần download gói nào?",
+                answers: ["A. XR Interaction Toolkit.", "B. XR Plugin Management.", "C. Oculus XR Plugin.", "D. Cả 3 gói trên."],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 60: SDK là gì?",
+                answers: ["A. Là giao diện lập trình ứng dụng, để xây dựng các chương trình ứng dụng.", "B. Là môi trường dùng soạn thảo viết mã lập trình để phát triển ứng dụng.", "C. Là công cụ cốt lõi dùng để biên dịch mã nguồn thành các mã nhị phân để máy tính hiểu được.", "D. Là công cụ cung cấp các thư viện, tài liệu, mẫu template, sample code, tiện ích gỡ rối (debugging), các ghi chú hỗ trợ (documentation) hoặc các tài liệu bổ sung,… để nhà phát triển có thể tích hợp thêm vào phần mềm."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 61: Unity3d có thể build được các nền tảng nào sau đây?",
+                answers: ["A. Ios, Android, Linux, tvOS.", "B. Ios, Android, Linux, HarmonyOS.", "C. Ios, Android, tvOS, HarmonyOS.", "D. Ios, Android, FirefoxOS, ChromeOS."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 62: Để build 1 chương trình chạy trực tiếp trên điện thoại, ta chọn?",
+                answers: ["A. File/Build and run.", "B. File/Build setting/Build and run.", "C. File/build setting/Build.", "D. Đáp án 1,2 đúng."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 63: Người dùng phải trả phí cho những bản Unity nào sau đây?",
+                answers: ["A. Personal, Plus, Pro, Enterprise.", "B. Personal, Plus, Pro.", "C. Personal, Pro, Enterprise.", "D. Plus, Pro, Enterprise."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 64: Kích hoạt quyền phát triển để tùy chỉnh trên Android ta gõ vào màn hình điện thoại mấy lần?",
+                answers: ["A. 1", "B. 2", "C. 6", "D. 8"],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 65: Unity hỗ trợ kính VR từ phiên bản bao nhiêu trở lên?",
+                answers: ["A. 2016", "B. 2017", "C. 2018", "D. 2019"],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 66: Trong phần: Scenes in Build ta có thể Add được bao nhiêu scenes?",
+                answers: ["A. 1", "B. 2", "C. 3", "D. Không giới hạn."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 67: Minimum API Level trong Project Settings dùng để thiết lập?",
+                answers: ["A. Các loại kính VR.", "B. Các loại hệ điều hành.", "C. Phiên bản hệ điều hành Android.", "D. Không có đáp án đúng."],
+                correctAnswerIndex: 2,
+            },
+            {
+                questionText: "Câu 68: APK(Android Package Kit) là gì?",
+                answers: ["A. Là tên 1 chương trình ứng dụng.", "B. Là tên 1 công ty phát triển hệ điều hành.", "C. Là một chương trình soạn thảo để lập trình trên điện thoại di động.", "D. Định dạng tệp được sử dụng bởi hệ điều hành Android để phân phối và cài đặt các ứng dụng di động."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 69: Xcode là gì?",
+                answers: ["A. Là một hệ điều hành.", "B. Là 1 package trên Asset Store Unity.", "C. Là bộ phát triển phần mềm tích hợp được Apple phát triển chạy trên hệ điều hành Mac.", "D. Là 1 plugin trong Unity."],
+                correctAnswerIndex: 2,
+            },
+            {
+                questionText: "Câu 70: Oculus là thương hiệu của công ty nào?",
+                answers: ["A. Apple.", "B. FaceBook.", "C. Unity.", "D. SpaceX."],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 71: Phần mềm Unity có thể sử dụng những ngôn ngữ nào để viết mã lệnh?",
+                answers: ["A. Java, C#.", "B. C, C#.", "C. C, C++.", "D. C#, JavaScript."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 72: Để di chuyển 1 đối tượng đến vị trí khác ta sử dụng lệnh nào sau đây?",
+                answers: ["A. this.transform", "B. this.transform.position", "C. this.transform.rotation", "D. this.transform.scale"],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 73: Để xoay 1 đối tượng ta sử dụng lệnh nào sau đây?",
+                answers: ["A. this.transform", "B. this.transform.position.", "C. this.transform.rotation.", "D. this.transform.rotation.up"],
+                correctAnswerIndex: 2,
+            },
+            {
+                questionText: "Câu 74: Để chỉnh kích thước của 1 đối tượng ta sử dụng lệnh nào?",
+                answers: ["A. this.transform.size", "B. this.transform.scale.", "C. this.transform.position.", "D. this.transform.rotation."],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 75: Khi 1 trong 2 đối tượng để IS Trigger = true (hộp checkbox được đánh dấu) sẽ xảy ra sự kiện gì sau va chạm?",
+                answers: ["A. 2 đối tượng đi xuyên qua nhau.", "B. 2 đối tượng va chạm vật lý với nhau.", "C. Đối tượng mất tương tác vật lý.", "D. Không có đáp án đúng."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 76: Khi cả 2 đối tượng để IS Trigger = false (hộp checkbox không đánh dấu) sẽ xảy ra sự kiện gì sau va chạm?",
+                answers: ["A. 2 đối tượng đi xuyên qua nhau.", "B. 2 đối tượng va chạm vật lý với nhau.", "C. Đối tượng mất tương tác vật lý.", "D. Không có đáp án đúng."],
+                correctAnswerIndex: 1,
+            },
+            {
+                questionText: "Câu 77: Hàm Start được gọi mấy lần trong Unity?",
+                answers: ["A. 1", "B. 2", "C. 3", "D. Vô số lần"],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 78: Hàm Update được gọi mấy lần trong Unity?",
+                answers: ["A. 1", "B. 2", "C. 3", "D. Vô số lần."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 79: Muốn đưa một tài nguyên (ảnh, âm thanh, mô hình…) tạo ra bởi các phần mềm khác vào Unity ta làm thế nào?",
+                answers: ["A. Copy vào thư mục Assets của dự án.", "B. Kéo thả trực tiếp vào cửa sổ Project của Unity.", "C. Cả hai cách trên đều đúng.", "D. Không có đáp án đúng."],
+                correctAnswerIndex: 2,
+            },
+            {
+                questionText: "Câu 80: Một Audio Source có thể tạo được bao nhiêu Audio Clip?",
+                answers: ["A. 1", "B. 2", "C. 3", "D. Vô số."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 81: Nếu bạn sử dụng mã lệnh (Script) để khai báo Audio Source thì 1 đối tượng có thể tạo được bao nhiêu Audio Clip?",
+                answers: ["A. 1", "B. 2", "C. 3", "D. Vô số."],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 82: Chương trình tạo ra bởi Unity cho nền tảng iOS có phần mở rộng là gì?",
+                answers: ["A. *.xcodeproj.", "B. *.exe.", "C. *.apk.", "D. *.jpg."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 83: Chương trình tạo ra bởi Unity cho nền tảng Android có phần mở rộng là gì?",
+                answers: ["A. *.xcodeproj.", "B. *.exe.", "C. *.apk.", "D. *.jpg."],
+                correctAnswerIndex: 2,
+            },
+            {
+                questionText: "Câu 84: Khi thiết kế Material cho một đối tượng, giữa việc thiết kế 1 material duy nhất cho tất cả mặt đối tượng (công cụ UV) với việc thiết kế mỗi mặt một Material, phương pháp nào tối ưu hiệu năng thiết bị hơn?",
+                answers: ["A. 1 Material duy nhất.", "B. Mỗi mặt một Material.", "C. Cả hai cách trên như nhau.", "D. Không có đáp án đúng."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 85: Công cụ Terrain trong Unity dùng để làm gì?",
+                answers: ["A. Thiết kế địa hình.", "B. Thiết kế mô hình.", "C. Thiết kế vật liệu.", "D. Thiết kế chuyển động."],
+                correctAnswerIndex: 0,
+            },
+            {
+                questionText: "Câu 86: Có mấy loại liên kết (Constraint) trong Unity?",
+                answers: ["A. 3", "B. 4", "C. 5", "D. 6"],
+                correctAnswerIndex: 3,
+            },
+            {
+                questionText: "Câu 87: Để thiết lập tùy chỉnh cho thiết bị đầu ra của sản phẩm, ta chọn mục nào trong hình sau?",
+                answers: ["A. Adaptive Performance.", "B. Player.", "C. Preset Manager.", "D. XR-Plug-in Management."],
+                correctAnswerIndex: 1, imageUrl: "/onthi/file_anh/cau87-89title.png"
+            },
+            {
+                questionText: "Câu 88: Để thiết lập hiển thị các thông số về hiệu năng của thiết bị đầu ra của sản phẩm, ta chọn mục nào trong hình sau?",
+                answers: ["A. Adaptive Performance.", "B. Player.", "C. Preset Manager.", "D. XR-Plug-in Management."],
+                correctAnswerIndex: 0, imageUrl: "/onthi/file_anh/cau87-89title.png"
+            },
+            {
+                questionText: "Câu 89: Để xem và quản lý các Plug-in, ta chọn mục nào trong hình sau?",
+                answers: ["A. Adaptive Performance.", "B. Player.", "C. Preset Manager.", "D. XR Plug-in Management."],
+                correctAnswerIndex: 3, imageUrl: "/onthi/file_anh/cau87-89title.png"
+            },
+            {
+                questionText: "Câu 90: Kiểu ánh sáng trong hình sau là ánh sáng gì trong Unity?",
+                answers: ["A. Directional Light.", "B. Point Light.", "C. Spot Light.", "D. Area Light."],
+                correctAnswerIndex: 1, imageUrl: "/onthi/file_anh/cau90title.png"
+            },
+            {
+                questionText: "Câu 91: Hình ảnh sau hiển thị chức năng nào?",
+                answers: ["A. Hiệu ứng ánh sáng.", "B. Hiệu ứng âm thanh.", "C. Hiệu ứng bầu trời.", "D. Không có đáp án đúng."],
+                correctAnswerIndex: 2, imageUrl: "/onthi/file_anh/cau91title.png"
+            },
+            {
+                questionText: "Câu 92: Để xem và quản lý các thông số đã được lưu trong chương trình, ta chọn mục nào trong hình sau?",
+                answers: ["A. Adaptive Performance.", "B. Player.", "C. Preset Manager.", "D. XR-Plug-in Management."],
+                correctAnswerIndex: 2, imageUrl: "/onthi/file_anh/cau92title.png"
+            },
+            {
+                questionText: "Câu 93: Để kết nối Unity với các phần mềm hỗ trợ lập trình ta vào đâu?",
+                answers: ["A. Edit\\Preference\\Colors.", "B. Windows\\Preference\\Colors.", "C. Edit\\Preference\\External Tools.", "D. Windows\\Preference\\External Tools."],
+                correctAnswerIndex: 2,
+            },
+            {
+                questionText: "Câu 94: Để thay đổi màu hiển thị các công cụ hỗ trợ trong Unity ta vào đâu?",
+                answers: ["A. Edit\\Preference\\Colors.", "B. Windows\\Preference\\Colors.", "C. Edit\\Preference\\External Tools.", "D. Windows\\Preference\\External Tools."],
+                correctAnswerIndex: 0,
+            },
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let incorrectQuestions = [];
+
+        function checkAnswer(element, index) {
+            const question = questions[currentQuestionIndex];
+            const correctIndex = question.correctAnswerIndex;
+
+            if (index === correctIndex) {
+                element.classList.add('correct');
+                score++;
+                const incorrectIndex = incorrectQuestions.indexOf(currentQuestionIndex);
+                if (incorrectIndex !== -1) {
+                    incorrectQuestions.splice(incorrectIndex, 1);
+                }
+            } else {
+                element.classList.add('incorrect');
+                const correctAnswerDiv = document.querySelectorAll('.answer')[correctIndex];
+                correctAnswerDiv.classList.add('correct-answer');
+                if (!incorrectQuestions.includes(currentQuestionIndex)) {
+                    incorrectQuestions.push(currentQuestionIndex);
+                }
+            }
+
+            let answers = document.querySelectorAll('.answer');
+            answers.forEach(answer => {
+                answer.onclick = null;
+            });
+
+            setTimeout(showNextQuestion, 1000);
+        }
+
+        function showNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                displayQuestion(questions[currentQuestionIndex]);
+            } else {
+                displayResult();
+            }
+            updateNavigationButtons();
+        }
+
+        function showPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion(questions[currentQuestionIndex]);
+                updateNavigationButtons();
+            }
+        }
+
+        function retryIncorrect() {
+            if (incorrectQuestions.length > 0) {
+                const incorrectSet = new Set(incorrectQuestions);
+                const retryQuestions = questions.filter((_, index) => incorrectSet.has(index));
+                questions.length = 0;
+                questions.push(...retryQuestions);
+                currentQuestionIndex = 0;
+                incorrectQuestions.length = 0;
+                score = 0;
+                displayQuestion(questions[currentQuestionIndex]);
+                updateNavigationButtons();
+            }
+        }
+
+        function displayQuestion(question) {
+            const questionContainer = document.getElementById('questionsContainer');
+            questionContainer.innerHTML = `<h2>${question.questionText}</h2>`;
+
+            const imageDiv = document.querySelector('.anh');
+            if (question.imageUrl) {
+                imageDiv.style.backgroundImage = `url(${question.imageUrl})`;
+            } else {
+                imageDiv.style.backgroundImage = 'none';
+            }
+
+            question.answers.forEach((answer, index) => {
+                const answerDiv = document.createElement('div');
+                answerDiv.classList.add('answer');
+                answerDiv.innerText = answer;
+                answerDiv.onclick = function () {
+                    checkAnswer(this, index);
+                };
+                questionContainer.appendChild(answerDiv);
+            });
+        }
+
+        function displayResult() {
+            const resultContainer = document.getElementById('result');
+            const totalQuestions = questions.length;
+            const totalScore = (score / totalQuestions) * 10;
+            resultContainer.innerHTML = `Bạn đã hoàn thành bài thi!<br>Điểm của bạn là: ${totalScore.toFixed(1)} / 10`;
+            document.querySelector('.navigation').style.display = 'none';
+        }
+
+        function updateNavigationButtons() {
+            document.getElementById('prevButton').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextButton').disabled = false;
+            document.getElementById('retryButton').disabled = incorrectQuestions.length === 0;
+        }
+
+        displayQuestion(questions[currentQuestionIndex]);
+    </script>
+
+</body>
+
+</html>
